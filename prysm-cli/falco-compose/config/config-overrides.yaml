@@ -1,0 +1,7 @@
+json_output: true
+
+http_output:
+  enabled: true
+  url: "http://falcosidekick:2801/"
+  insecure: false
+  echo: false

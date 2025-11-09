@@ -1,0 +1,61 @@
+services:
+  falco:
+    image: falcosecurity/falco:latest
+    container_name: falco
+    privileged: true
+    pid: host
+    restart: unless-stopped
+    environment:
+      FALCO_JSON_OUTPUT: "true"
+      FALCO_HTTP_OUTPUT_ENABLED: "true"
+      FALCO_HTTP_OUTPUT_URL: "http://falcosidekick:2801/"
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - /run/containerd/containerd.sock:/host/run/containerd/containerd.sock
+      - /proc:/host/proc:ro
+      - /etc:/host/etc:ro
+      - /dev:/host/dev
+      - /lib/modules:/host/lib/modules:ro
+      - /usr:/host/usr:ro
+      - /sys/kernel/tracing:/sys/kernel/tracing:ro
+      - /sys/kernel/debug:/host/sys/kernel/debug:ro
+      - ./config/rules.local.yaml:/etc/falco/rules.d/rules.local.yaml:ro
+      - ./config/config-overrides.yaml:/etc/falco/config.d/99-local.yaml:ro
+    depends_on:
+      - falcosidekick
+
+  falcosidekick:
+    image: falcosecurity/falcosidekick:latest
+    container_name: falcosidekick
+    restart: unless-stopped
+    environment:
+      WEBUI_URL: "http://falcosidekick-ui:2802"
+    ports:
+      - "2801:2801"
+    depends_on:
+      - falcosidekick-ui
+
+  falcosidekick-ui:
+    image: falcosecurity/falcosidekick-ui:latest
+    container_name: falcosidekick-ui
+    restart: unless-stopped
+    environment:
+      FALCOSIDEKICK_UI_REDIS_URL: "redis:6379"
+      FALCOSIDEKICK_UI_ADDR: "0.0.0.0"
+      FALCOSIDEKICK_UI_PORT: "2802"
+    ports:
+      - "2802:2802"
+    depends_on:
+      - redis
+
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: falco-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+
+volumes:
+  redis-data:

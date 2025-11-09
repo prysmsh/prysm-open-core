@@ -1,0 +1,8 @@
+bin/
+dist/
+.dart_tool/
+build/
+*.log
+*.tmp
+*.swp
+*.db

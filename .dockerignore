@@ -1,0 +1,13 @@
+.gocache/
+.git
+.gitignore
+.vscode/
+.idea/
+bin/
+prysm-backend
+kubeaccess-backend
+tmp/
+*.log
+*.tmp
+**/*_test.go
+test_utils.go

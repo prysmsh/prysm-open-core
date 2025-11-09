@@ -1,0 +1,52 @@
+# Multi-stage build for Enhanced Prysm K8s Agent
+FROM golang:1.24-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache git ca-certificates tzdata
+
+# Set working directory
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build the Prysm K8s agent binary
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o prysm-k8s-agent ./cmd/agent
+
+# Final stage - use distroless for security and minimal size
+FROM gcr.io/distroless/static:nonroot
+
+# Copy CA certificates for TLS
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+# Copy the binary
+COPY --from=builder /app/prysm-k8s-agent /prysm-k8s-agent
+
+# Install kubectl
+COPY --from=bitnami/kubectl:latest /opt/bitnami/kubectl/bin/kubectl /usr/local/bin/kubectl
+
+# Expose metrics and health ports
+EXPOSE 8080 9090
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD ["/prysm-k8s-agent", "--health-check"]
+
+# Set labels for metadata
+LABEL org.opencontainers.image.title="Prysm Enhanced Kubernetes Agent" \
+      org.opencontainers.image.description="Enhanced Kubernetes agent with P2P DERP connectivity and service discovery" \
+      org.opencontainers.image.source="https://github.com/prysmsh/prysm" \
+      org.opencontainers.image.vendor="Prysm" \
+      org.opencontainers.image.licenses="MIT"
+
+# Run as non-root user (distroless nonroot)
+USER 65532:65532
+
+# Run the Prysm K8s agent
+ENTRYPOINT ["/prysm-k8s-agent"]

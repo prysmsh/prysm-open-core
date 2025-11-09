@@ -1,0 +1,5 @@
+#include "../../Flutter/Flutter-Release.xcconfig"
+#include "Warnings.xcconfig"
+
+// Set consistent deployment target for macOS 26.0.1
+MACOSX_DEPLOYMENT_TARGET = 14.0

@@ -1,0 +1,35 @@
+name: prysm_flutter
+description: prysm.sh native desktop client built with Flutter
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # UI & State Management
+  cupertino_icons: ^1.0.6
+  flutter_riverpod: ^2.4.9
+  go_router: ^12.1.3
+  
+  # HTTP & Networking
+  dio: ^5.4.0
+  
+  # Storage & Security
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  
+  # Charts & Visualization
+  fl_chart: ^0.65.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true

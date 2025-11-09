@@ -1,0 +1,7 @@
+ALTER TABLE clusters
+    ADD COLUMN IF NOT EXISTS wg_public_key VARCHAR(128),
+    ADD COLUMN IF NOT EXISTS wg_overlay_cidr VARCHAR(64),
+    ADD COLUMN IF NOT EXISTS wg_listen_port INTEGER,
+    ADD COLUMN IF NOT EXISTS wg_peers JSON,
+    ADD COLUMN IF NOT EXISTS wg_config_hash VARCHAR(128),
+    ADD COLUMN IF NOT EXISTS wg_updated_at TIMESTAMPTZ;
